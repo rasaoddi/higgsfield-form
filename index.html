@@ -6,8 +6,8 @@
   <title>ساخت ویدیو از تصویر</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
+      font-family: sans-serif;
+      background: #f5f5f5;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -15,130 +15,133 @@
       margin: 0;
     }
     .container {
-      text-align: center;
-      background-color: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      width: 100%;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 90%;
       max-width: 400px;
-    }
-    .thumbnail {
-      margin-top: 20px;
-      width: 200px;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 10px;
-      display: none;
+      text-align: center;
     }
     label {
-      font-size: 18px;
-      margin-bottom: 10px;
       display: block;
       text-align: right;
+      margin-top: 10px;
+      margin-bottom: 5px;
     }
     select, input[type="file"], button {
-      margin: 10px 0;
-      padding: 10px;
-      font-size: 16px;
       width: 100%;
-      border-radius: 5px;
-      border: 1px solid #ddd;
-      box-sizing: border-box;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
     }
     button {
-      background-color: #28a745;
+      background: #28a745;
       color: white;
+      font-weight: bold;
       cursor: pointer;
+      border: none;
     }
     button:hover {
-      background-color: #218838;
+      background: #218838;
+    }
+    .thumbnail {
+      display: none;
+      margin: 10px auto;
+      width: 200px;
+      border-radius: 10px;
     }
     .result {
-      margin-top: 20px;
       display: none;
-      background-color: #e0ffe0;
+      background: #e6ffe6;
       padding: 10px;
-      border-radius: 8px;
+      border-radius: 6px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>ساخت ویدیو از تصویر با افکت مشت به صورت</h2>
-  
-  <form id="videoForm" method="POST" enctype="multipart/form-data" action="https://0fb5-49-12-51-140.ngrok-free.app/generate">
-    
+  <h2>ساخت ویدیو از تصویر</h2>
+
+  <form id="videoForm">
     <label for="effect">افکت:</label>
     <select name="effect" id="effect">
       <option value="face_punch" selected>مشت به صورت</option>
-      <option value="car_explosion" disabled>انفجار ماشین</option>
-      <option value="slow_motion" disabled>حرکت آهسته</option>
     </select>
 
     <label for="image">انتخاب تصویر:</label>
-    <input type="file" name="image" id="image" required>
+    <input type="file" id="image" name="image" required>
 
-    <img id="thumbnail" class="thumbnail" src="" alt="تصویر انتخابی">
-    
+    <img id="preview" class="thumbnail" alt="پیش‌نمایش تصویر"/>
+
     <button type="submit">ساخت ویدیو</button>
   </form>
 
-  <div class="result" id="videoResult">
-    <p>ویدیو شما آماده است:</p>
-    <a id="videoLink" href="#" target="_blank">دانلود ویدیو</a>
+  <div class="result" id="resultBox">
+    <p>لینک ویدیو شما:</p>
+    <a id="videoLink" href="#" target="_blank">مشاهده ویدیو</a>
   </div>
 </div>
 
 <script>
-  const imageInput = document.getElementById("image");
-  const thumbnail = document.getElementById("thumbnail");
-  const resultDiv = document.getElementById("videoResult");
-  const videoLink = document.getElementById("videoLink");
+  const imageInput = document.getElementById('image');
+  const preview = document.getElementById('preview');
+  const form = document.getElementById('videoForm');
+  const resultBox = document.getElementById('resultBox');
+  const videoLink = document.getElementById('videoLink');
 
-  imageInput.addEventListener("change", function() {
+  // نمایش پیش‌نمایش تصویر
+  imageInput.addEventListener('change', () => {
     const file = imageInput.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = function(event) {
-        thumbnail.style.display = "block";
-        thumbnail.src = event.target.result;
+      reader.onload = e => {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
       };
       reader.readAsDataURL(file);
     }
   });
 
-  document.getElementById("videoForm").addEventListener("submit", async function(e) {
+  // ارسال فرم
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const form = e.target;
     const formData = new FormData(form);
+    const ngrokUrl = 'https://4ad1-49-12-51-140.ngrok-free.app/generate'; // آدرس سرور
 
     try {
-      const res = await fetch(form.action, {
-        method: "POST",
-        body: formData
+      const res = await fetch(ngrokUrl, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'ngrok-skip-browser-warning': 'true' // حذف صفحه هشدار ngrok
+        }
       });
 
       const contentType = res.headers.get("content-type");
 
       if (contentType && contentType.includes("application/json")) {
         const data = await res.json();
+
         if (data.videoUrl) {
           videoLink.href = data.videoUrl;
-          videoLink.textContent = "دانلود ویدیو";
-          resultDiv.style.display = "block";
+          videoLink.textContent = "مشاهده ویدیو";
+          resultBox.style.display = 'block';
         } else {
-          alert("مشکلی در دریافت لینک ویدیو به‌وجود آمد.");
+          alert("پاسخی بدون لینک ویدیو دریافت شد.");
         }
       } else {
         const text = await res.text();
-        console.error("Unexpected response:", text);
+        console.error("پاسخ غیرمنتظره:", text);
         alert("پاسخ دریافتی از سرور JSON نبود.");
       }
     } catch (err) {
-      alert("خطا در ارتباط با سرور n8n");
+      alert("خطا در ارسال درخواست به سرور.");
       console.error(err);
     }
   });
