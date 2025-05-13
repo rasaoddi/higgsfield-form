@@ -1,59 +1,108 @@
 <!DOCTYPE html>
 <html lang="fa">
 <head>
-  <meta charset="UTF-8">
-  <title>ساخت ویدیو با افکت</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      direction: rtl;
-      text-align: center;
-      background-color: #f8f8f8;
-      padding: 50px;
-    }
-    .container {
-      background: white;
-      padding: 20px;
-      max-width: 500px;
-      margin: auto;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    }
-    input, select, button {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-    }
-    .loader {
-      display: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ساخت ویدیو از تصویر</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .thumbnail {
+            margin-top: 20px;
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            display: none;
+        }
+        .hidden {
+            display: none;
+        }
+        label {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        select, input[type="file"], button {
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .result {
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h2>افکت ویدیویی انتخاب کن</h2>
-    <form id="uploadForm" action="https://rasatest.app.n8n.cloud/webhook-test/upload-image" method="POST" enctype="multipart/form-data">
-      <label>افکت دلخواه</label>
-      <select name="effect" required>
-        <option value="face_punch">مشت به صورت</option>
-        <option value="car_explosion">انفجار ماشین</option>
-        <option value="slow_motion">حرکت آهسته</option>
-        <!-- افکت‌های دیگه رو هم اینجا اضافه کن -->
-      </select>
 
-      <label>عکس خودت رو انتخاب کن</label>
-      <input type="file" name="photo" accept="image/*" required>
+<div class="container">
+    <h2>ساخت ویدیو از تصویر با افکت مشت به صورت</h2>
+    <form id="videoForm" method="POST" action="https://your-n8n-webhook-url">
+        <!-- افکت فقط Face Punch -->
+        <label for="effect">افکت:</label>
+        <select name="effect" id="effect">
+            <option value="face_punch" selected>مشت به صورت</option>
+            <option value="car_explosion" disabled>انفجار ماشین</option>
+            <option value="slow_motion" disabled>حرکت آهسته</option>
+        </select>
 
-      <button type="submit">ارسال عکس و ساخت ویدیو</button>
+        <label for="image">انتخاب تصویر:</label>
+        <input type="file" name="image" id="image" required>
+
+        <img id="thumbnail" class="thumbnail" src="" alt="تصویر انتخابی">
+        
+        <button type="submit">ساخت ویدیو</button>
     </form>
+    <div class="result" id="videoResult">
+        <p>لینک ویدیو شما:</p>
+        <a id="videoLink" href="#" target="_blank">دانلود ویدیو</a>
+    </div>
+</div>
 
-    <div class="loader" id="loader">⏳ در حال ساخت ویدیو... لطفاً منتظر بمانید.</div>
-  </div>
+<script>
+    const imageInput = document.getElementById("image");
+    const thumbnail = document.getElementById("thumbnail");
+    const resultDiv = document.getElementById("videoResult");
+    const videoLink = document.getElementById("videoLink");
 
-  <script>
-    document.getElementById("uploadForm").addEventListener("submit", function() {
-      document.getElementById("loader").style.display = "block";
+    // نمایش پیش‌نمایش تصویر انتخابی
+    imageInput.addEventListener("change", function() {
+        const file = imageInput.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                thumbnail.style.display = "block";
+                thumbnail.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
     });
-  </script>
+</script>
+
 </body>
 </html>
