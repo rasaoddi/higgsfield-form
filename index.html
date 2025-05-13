@@ -68,7 +68,8 @@
 <div class="container">
   <h2>ساخت ویدیو از تصویر با افکت مشت به صورت</h2>
   
-  <form id="videoForm" method="POST" enctype="multipart/form-data" action="https://rasatest.app.n8n.cloud/webhook/generate-higgsfield-video">
+  <form id="videoForm" method="POST" enctype="multipart/form-data"
+        action="https://rasatest.app.n8n.cloud/webhook/image-effect">
     
     <label for="effect">افکت:</label>
     <select name="effect" id="effect">
@@ -109,7 +110,6 @@
     }
   });
 
-  // دریافت پاسخ لینک از n8n و نمایش به کاربر
   document.getElementById("videoForm").addEventListener("submit", async function(e) {
     e.preventDefault();
 
@@ -122,13 +122,17 @@
         body: formData
       });
 
+      if (!res.ok) throw new Error("Server error");
+
       const data = await res.json();
+
       if (data.videoUrl) {
         videoLink.href = data.videoUrl;
         videoLink.textContent = "دانلود ویدیو";
         resultDiv.style.display = "block";
       } else {
         alert("مشکلی در دریافت لینک ویدیو به‌وجود آمد.");
+        console.log("پاسخ دریافتی:", data);
       }
     } catch (err) {
       alert("خطا در ارتباط با سرور n8n");
