@@ -94,7 +94,6 @@
   const resultBox = document.getElementById('resultBox');
   const videoLink = document.getElementById('videoLink');
 
-  // نمایش پیش‌نمایش تصویر
   imageInput.addEventListener('change', () => {
     const file = imageInput.files[0];
     if (file) {
@@ -107,24 +106,19 @@
     }
   });
 
-  // ارسال فرم
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const formData = new FormData(form);
-    const ngrokUrl = 'https://4ad1-49-12-51-140.ngrok-free.app/generate'; // آدرس سرور
+    const localServerUrl = 'http://localhost:3000/generate'; // اتصال به سرور محلی خودت
 
     try {
-      const res = await fetch(ngrokUrl, {
+      const res = await fetch(localServerUrl, {
         method: 'POST',
-        body: formData,
-        headers: {
-          'ngrok-skip-browser-warning': 'true' // حذف صفحه هشدار ngrok
-        }
+        body: formData
       });
 
       const contentType = res.headers.get("content-type");
-
       if (contentType && contentType.includes("application/json")) {
         const data = await res.json();
 
@@ -141,7 +135,7 @@
         alert("پاسخ دریافتی از سرور JSON نبود.");
       }
     } catch (err) {
-      alert("خطا در ارسال درخواست به سرور.");
+      alert("خطا در ارتباط با سرور.");
       console.error(err);
     }
   });
