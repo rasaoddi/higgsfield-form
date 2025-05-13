@@ -68,8 +68,7 @@
 <div class="container">
   <h2>ساخت ویدیو از تصویر با افکت مشت به صورت</h2>
   
-  <form id="videoForm" method="POST" enctype="multipart/form-data"
-        action="https://rasatest.app.n8n.cloud/webhook/image-effect">
+  <form id="videoForm" method="POST" enctype="multipart/form-data" action="https://rasatest.app.n8n.cloud/webhook/image-effect">
     
     <label for="effect">افکت:</label>
     <select name="effect" id="effect">
@@ -98,11 +97,11 @@
   const resultDiv = document.getElementById("videoResult");
   const videoLink = document.getElementById("videoLink");
 
-  imageInput.addEventListener("change", function() {
+  imageInput.addEventListener("change", function () {
     const file = imageInput.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = function(event) {
+      reader.onload = function (event) {
         thumbnail.style.display = "block";
         thumbnail.src = event.target.result;
       };
@@ -110,7 +109,7 @@
     }
   });
 
-  document.getElementById("videoForm").addEventListener("submit", async function(e) {
+  document.getElementById("videoForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const form = e.target;
@@ -122,17 +121,13 @@
         body: formData
       });
 
-      if (!res.ok) throw new Error("Server error");
-
       const data = await res.json();
-
       if (data.videoUrl) {
         videoLink.href = data.videoUrl;
         videoLink.textContent = "دانلود ویدیو";
         resultDiv.style.display = "block";
       } else {
         alert("مشکلی در دریافت لینک ویدیو به‌وجود آمد.");
-        console.log("پاسخ دریافتی:", data);
       }
     } catch (err) {
       alert("خطا در ارتباط با سرور n8n");
