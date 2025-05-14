@@ -3,69 +3,181 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ساخت ویدیو</title>
+  <title>ساخت ویدیو از تصویر</title>
+  <style>
+    body {
+      font-family: 'Vazir', sans-serif;
+      background: linear-gradient(135deg, #d3cce3, #e9e4f0);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    label {
+      display: block;
+      text-align: right;
+      margin-top: 10px;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    select, input[type="file"], button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    button {
+      background: #673ab7;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover {
+      background: #512da8;
+    }
+    .thumbnail {
+      display: none;
+      margin: 10px auto;
+      width: 200px;
+      border-radius: 10px;
+    }
+    .progress-box {
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+    }
+    .progress-bar {
+      width: 100%;
+      background-color: #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 20px;
+      width: 0%;
+      background-color: #673ab7;
+      transition: width 0.5s ease;
+    }
+    .video-box {
+      display: none;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
-  <h2>تست اتصال به سرور از Netlify</h2>
-  <form id="videoForm" method="POST" enctype="multipart/form-data">
-    <label>افکت:</label>
-    <select name="effect">
-      <option value="face_punch">مشت به صورت</option>
-    </select><br><br>
 
-    <label>انتخاب تصویر:</label>
-    <input type="file" name="image" required><br><br>
+<div class="container">
+  <h2>🎬 ساخت ویدیو از تصویر</h2>
 
-    <button type="submit">ارسال</button>
+  <form id="videoForm">
+    <label for="effect">افکت:</label>
+    <select name="effect" id="effect">
+      <option value="face_punch" selected>مشت به صورت</option>
+    </select>
+
+    <label for="image">انتخاب تصویر:</label>
+    <input type="file" id="image" name="image" required>
+
+    <img id="preview" class="thumbnail" alt="پیش‌نمایش تصویر"/>
+
+    <button type="submit">ساخت ویدیو</button>
   </form>
 
-  <div id="result" style="display:none; margin-top:15px;">
-    <p>لینک ویدیو:</p>
-    <a id="videoLink" href="#" target="_blank">مشاهده</a>
+  <div class="progress-box" id="progressBox">
+    <p>⏳ در حال ساخت ویدیو...</p>
+    <div class="progress-bar">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
   </div>
 
-  <script>
-    const form = document.getElementById('videoForm');
-    const resultBox = document.getElementById('result');
-    const videoLink = document.getElementById('videoLink');
+  <div class="video-box" id="videoBox">
+    <p>✅ ویدیوی شما آماده است:</p>
+    <video id="resultVideo" controls width="100%"></video>
+  </div>
+</div>
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(form);
+<script>
+  const imageInput = document.getElementById('image');
+  const preview = document.getElementById('preview');
+  const form = document.getElementById('videoForm');
+  const progressBox = document.getElementById('progressBox');
+  const progressFill = document.getElementById('progressFill');
+  const videoBox = document.getElementById('videoBox');
+  const resultVideo = document.getElementById('resultVideo');
 
-      // ❗ آدرس NGROK خودتو اینجا بذار
-      const url = "https://4ad1-49-12-51-140.ngrok-free.app/generate";
+  imageInput.addEventListener('change', () => {
+    const file = imageInput.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
 
-      try {
-        const res = await fetch(url, {
-          method: "POST",
-          body: formData,
-          headers: {
-            "ngrok-skip-browser-warning": "true"
-          }
-        });
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-        const contentType = res.headers.get("content-type");
+    const formData = new FormData(form);
+    const url = "https://YOUR_NGROK_ADDRESS.ngrok-free.app/generate";
 
-        if (contentType && contentType.includes("application/json")) {
-          const data = await res.json();
-          if (data.videoUrl) {
-            videoLink.href = data.videoUrl;
-            videoLink.textContent = "مشاهده ویدیو";
-            resultBox.style.display = "block";
-          } else {
-            alert("پاسخ معتبر نبود.");
-          }
-        } else {
-          const text = await res.text();
-          console.log("پاسخ غیر JSON:", text);
-          alert("پاسخ JSON نبود.");
-        }
-      } catch (err) {
-        alert("❌ خطا در ارسال درخواست به سرور.");
-        console.error(err);
+    progressBox.style.display = 'block';
+    progressFill.style.width = '0%';
+
+    // انیمیشن ساده پر شدن نوار پیشرفت
+    let progress = 0;
+    const fakeProgress = setInterval(() => {
+      if (progress < 90) {
+        progress += 1;
+        progressFill.style.width = progress + '%';
       }
-    });
-  </script>
+    }, 1000);
+
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        body: formData
+      });
+
+      clearInterval(fakeProgress);
+      progressFill.style.width = '100%';
+
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await res.json();
+        if (data.videoUrl) {
+          progressBox.style.display = 'none';
+          videoBox.style.display = 'block';
+          resultVideo.src = data.videoUrl;
+        } else {
+          alert("پاسخی بدون لینک ویدیو دریافت شد.");
+        }
+      } else {
+        const text = await res.text();
+        alert("پاسخ دریافتی از سرور JSON نبود: " + text);
+      }
+    } catch (err) {
+      clearInterval(fakeProgress);
+      alert("❌ خطا در ارسال به سرور");
+      console.error(err);
+    }
+  });
+</script>
+
 </body>
 </html>
