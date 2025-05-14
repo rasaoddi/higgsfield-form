@@ -85,7 +85,14 @@
   <form id="videoForm">
     <label for="effect">افکت:</label>
     <select name="effect" id="effect">
-      <option value="face_punch" selected>مشت به صورت</option>
+      <option value="face_punch">مشت به صورت</option>
+      <option value="venom">سینمایی ونوم</option>
+      <option value="gods">خدایان</option>
+      <option value="metal_skin">پوست متالیک</option>
+      <option value="head_explode">منفجر شدن سر</option>
+      <option value="disperse_particles">پخش شدن ذرات</option>
+      <option value="fire">تبدیل به آتش</option>
+      <option value="morph">افکت مورف</option>
     </select>
 
     <label for="image">انتخاب تصویر:</label>
@@ -139,7 +146,6 @@
     progressBox.style.display = 'block';
     progressFill.style.width = '0%';
 
-    // انیمیشن ساده پر شدن نوار پیشرفت
     let progress = 0;
     const fakeProgress = setInterval(() => {
       if (progress < 90) {
