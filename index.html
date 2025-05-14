@@ -75,6 +75,19 @@
       display: none;
       margin-top: 20px;
     }
+    .download-link {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #4caf50;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .download-link:hover {
+      background-color: #388e3c;
+    }
   </style>
 </head>
 <body>
@@ -113,6 +126,7 @@
   <div class="video-box" id="videoBox">
     <p>✅ ویدیوی شما آماده است:</p>
     <video id="resultVideo" controls width="100%"></video>
+    <a id="downloadLink" class="download-link" href="#" download>⬇️ دانلود ویدیو</a>
   </div>
 </div>
 
@@ -124,6 +138,7 @@
   const progressFill = document.getElementById('progressFill');
   const videoBox = document.getElementById('videoBox');
   const resultVideo = document.getElementById('resultVideo');
+  const downloadLink = document.getElementById('downloadLink');
 
   imageInput.addEventListener('change', () => {
     const file = imageInput.files[0];
@@ -170,6 +185,7 @@
           progressBox.style.display = 'none';
           videoBox.style.display = 'block';
           resultVideo.src = data.videoUrl;
+          downloadLink.href = data.videoUrl;
         } else {
           alert("پاسخی بدون لینک ویدیو دریافت شد.");
         }
