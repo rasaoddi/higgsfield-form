@@ -204,9 +204,10 @@
     e.preventDefault();
 
     const formData = new FormData(form);
-    const url = ${NGROK_BASE}/generate;
+    const url = `${NGROK_BASE}/generate`;
 
     progressBox.style.display = 'block';
+    videoBox.style.display = 'none';
     progressFill.style.width = '0%';
 
     let progress = 0;
@@ -229,21 +230,23 @@
       const contentType = res.headers.get("content-type");
       if (contentType && contentType.includes("application/json")) {
         const data = await res.json();
-        if (data.videoUrl) {
+        console.log("📥 Response:", data);
+
+        if (data.success && data.videoUrl) {
           progressBox.style.display = 'none';
           videoBox.style.display = 'block';
           resultVideo.src = data.videoUrl;
           downloadLink.href = data.videoUrl;
         } else {
-          alert("پاسخی بدون لینک ویدیو دریافت شد.");
+          alert("⚠️ خطا: " + (data.message || 'پاسخی بدون لینک ویدیو دریافت شد.'));
         }
       } else {
         const text = await res.text();
-        alert("پاسخ دریافتی از سرور JSON نبود: " + text);
+        alert("⚠️ پاسخ JSON نبود:\n" + text);
       }
     } catch (err) {
       clearInterval(fakeProgress);
-      alert("❌ خطا در ارسال به سرور");
+      alert("❌ خطا در اتصال به سرور:\n" + err.message);
       console.error(err);
     }
   });
@@ -276,13 +279,13 @@
     formData.append("customEffect", document.getElementById("customEffect").value);
 
     try {
-      const res = await fetch(${NGROK_BASE}/generate_custom, {
+      const res = await fetch(`${NGROK_BASE}/generate_custom`, {
         method: "POST",
         body: formData
       });
 
       const data = await res.json();
-      if (data.imageUrl) {
+      if (data.success && data.imageUrl) {
         alert("✅ تصویر ساخته شد!");
         const img = document.createElement('img');
         img.src = data.imageUrl;
@@ -292,7 +295,7 @@
         alert("❌ مشکلی در ساخت تصویر پیش آمد");
       }
     } catch (err) {
-      alert("❌ خطا در اتصال به سرور");
+      alert("❌ خطا در اتصال به سرور:\n" + err.message);
       console.error(err);
     }
   });
