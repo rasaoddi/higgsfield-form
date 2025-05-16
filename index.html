@@ -1,14 +1,212 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ساخت ویدیو از تصویر</title>
+  <style>
+    body {
+      font-family: 'Vazir', sans-serif;
+      background: linear-gradient(135deg, #d3cce3, #e9e4f0);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+    .tabs {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+    }
+    .tab-button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #ccc;
+      cursor: pointer;
+    }
+    .tab-button.active {
+      background-color: #673ab7;
+      color: white;
+    }
+    form {
+      display: none;
+    }
+    form.active {
+      display: block;
+    }
+    label {
+      display: block;
+      text-align: right;
+      margin-top: 10px;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    select, input[type="file"], button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    button {
+      background: #673ab7;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover {
+      background: #512da8;
+    }
+    .thumbnail {
+      display: none;
+      margin: 10px auto;
+      width: 200px;
+      border-radius: 10px;
+    }
+    .progress-box {
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+    }
+    .progress-bar {
+      width: 100%;
+      background-color: #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 20px;
+      width: 0%;
+      background-color: #673ab7;
+      transition: width 0.5s ease;
+    }
+    .video-box {
+      display: none;
+      margin-top: 20px;
+    }
+    .download-link {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #4caf50;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .download-link:hover {
+      background-color: #388e3c;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="tabs">
+    <button class="tab-button active" onclick="showTab('effect')">🎬 افکت‌های آماده</button>
+    <button class="tab-button" onclick="showTab('custom')">🎭 افکت‌های اختصاصی</button>
+  </div>
+
+  <form id="effectForm" class="active">
+    <label for="effect">افکت:</label>
+    <select name="effect" id="effect">
+      <option value="face_punch">مشت به صورت</option>
+      <option value="venom">سینمایی ونوم</option>
+      <option value="gods">خدایان</option>
+      <option value="metal_skin">پوست متالیک</option>
+      <option value="head_explode">منفجر شدن سر</option>
+      <option value="disperse_particles">پخش شدن ذرات</option>
+      <option value="fire">تبدیل به آتش</option>
+      <option value="morph">افکت مورف</option>
+    </select>
+
+    <label for="image">انتخاب تصویر:</label>
+    <input type="file" id="image" name="image" required>
+    <img id="preview" class="thumbnail" alt="پیش‌نمایش تصویر"/>
+    <button type="submit">ساخت ویدیو</button>
+  </form>
+
+  <form id="customForm">
+    <label for="face1">چهره اول:</label>
+    <input type="file" id="face1" name="face1" required>
+    <img id="preview1" class="thumbnail" alt="پیش‌نمایش چهره اول"/>
+
+    <label for="face2">چهره دوم:</label>
+    <input type="file" id="face2" name="face2" required>
+    <img id="preview2" class="thumbnail" alt="پیش‌نمایش چهره دوم"/>
+
+    <label for="customEffect">انتخاب افکت اختصاصی:</label>
+    <select id="customEffect" name="customEffect">
+      <option value="matrix">ماتریکس (دو نفره)</option>
+    </select>
+
+    <button type="submit">ساخت تصویر</button>
+  </form>
+
+  <div class="progress-box" id="progressBox">
+    <p>⏳ در حال ساخت ویدیو...</p>
+    <div class="progress-bar">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <div class="video-box" id="videoBox">
+    <p>✅ ویدیوی شما آماده است:</p>
+    <video id="resultVideo" controls width="100%"></video>
+    <a id="downloadLink" class="download-link" href="#" download>⬇️ دانلود ویدیو</a>
+  </div>
+</div>
+
 <script>
-  const NGROK_BASE = "https://your-ngrok-url.ngrok-free.app"; // این را با URL خودت جایگزین کن
+  const NGROK_BASE = "https://6964-49-12-51-140.ngrok-free.app";
+
+  function showTab(tab) {
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('form').forEach(form => form.classList.remove('active'));
+    document.getElementById(tab + 'Form').classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  const imageInput = document.getElementById('image');
+  const preview = document.getElementById('preview');
+  const form = document.getElementById('effectForm');
+  const progressBox = document.getElementById('progressBox');
+  const progressFill = document.getElementById('progressFill');
+  const videoBox = document.getElementById('videoBox');
+  const resultVideo = document.getElementById('resultVideo');
+  const downloadLink = document.getElementById('downloadLink');
+
+  imageInput.addEventListener('change', () => {
+    const file = imageInput.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const formData = new FormData(form);
-    const url = `${NGROK_BASE}/generate`;
+    const url = ${NGROK_BASE}/generate;
 
     progressBox.style.display = 'block';
-    videoBox.style.display = 'none';
     progressFill.style.width = '0%';
 
     let progress = 0;
@@ -31,24 +229,73 @@
       const contentType = res.headers.get("content-type");
       if (contentType && contentType.includes("application/json")) {
         const data = await res.json();
-        console.log('✅ Response from server:', data);
-
-        if (data.success && data.videoUrl) {
+        if (data.videoUrl) {
           progressBox.style.display = 'none';
           videoBox.style.display = 'block';
           resultVideo.src = data.videoUrl;
           downloadLink.href = data.videoUrl;
         } else {
-          alert("⚠️ خطا: " + (data.message || 'پاسخ نامعتبر از سرور.'));
+          alert("پاسخی بدون لینک ویدیو دریافت شد.");
         }
       } else {
         const text = await res.text();
-        alert("⚠️ پاسخ JSON نبود:\n" + text);
+        alert("پاسخ دریافتی از سرور JSON نبود: " + text);
       }
     } catch (err) {
       clearInterval(fakeProgress);
-      alert("❌ خطا در اتصال به سرور:\n" + err.message);
+      alert("❌ خطا در ارسال به سرور");
+      console.error(err);
+    }
+  });
+
+  document.getElementById('face1').addEventListener('change', function () {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const preview = document.getElementById('preview1');
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+    };
+    reader.readAsDataURL(this.files[0]);
+  });
+
+  document.getElementById('face2').addEventListener('change', function () {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const preview = document.getElementById('preview2');
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+    };
+    reader.readAsDataURL(this.files[0]);
+  });
+
+  document.getElementById('customForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("face1", document.getElementById("face1").files[0]);
+    formData.append("face2", document.getElementById("face2").files[0]);
+    formData.append("customEffect", document.getElementById("customEffect").value);
+
+    try {
+      const res = await fetch(${NGROK_BASE}/generate_custom, {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await res.json();
+      if (data.imageUrl) {
+        alert("✅ تصویر ساخته شد!");
+        const img = document.createElement('img');
+        img.src = data.imageUrl;
+        img.style.maxWidth = '100%';
+        document.querySelector('.container').appendChild(img);
+      } else {
+        alert("❌ مشکلی در ساخت تصویر پیش آمد");
+      }
+    } catch (err) {
+      alert("❌ خطا در اتصال به سرور");
       console.error(err);
     }
   });
 </script>
+</body>
+</html>
